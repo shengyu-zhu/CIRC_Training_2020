@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>CIRC Workshop for Simon PhD Students</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Shengyu Zhu | Simon Business School, University of Rochester" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# CIRC Workshop for Simon PhD Students
+### Shengyu Zhu | Simon Business School, University of Rochester
+### Aug 22, 2020 <br>
+
+---
+
+class: inverse, center, middle
+
+
+
+# Prologue
+&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=796px&gt;&lt;/html&gt;
+---
+# Software installation and registration
+
+The syllabus and slides are publicly available at [this GitHub repository](https://github.com/zhus1994/CIRC_Training_2020)
+
+There is another PDF file containing the slides about the detailed connection info
+- [Go to Simon Box](https://tech.rochester.edu/tutorials/sign-ur-box-using-web-browser/) (Only Simon PhD have access)
+  - PhD Department &gt; PhD Program Information &gt; CIRC
+- That PDF should not be publicly available, as requested by CIRC for saftey reasons
+
+Internet Connection
+- CIRC can only be accessed using the interal internet of UR
+  - For on-campus access: please connect to UR_Connected (recommended) or UR_RC_InternalSecure
+http://tech.rochester.edu/wireless-instructions/
+  -  [VPN is needed for off-campus access](http://tech.rochester.edu/services/remote-access-vpn/ )
+
+Must have for using CIRC. Installation link is in the syllabus
+
+  - CIRC account and simonx node access
+  - Two-Factor Authentication (Duo) 
+  - CIRC related software
+    - Windows: FastX, WinSCP; Mac: FastX, fetch
+    
+---
+# Workshop Overview
+
+How to use the High Performance Computing (HPC) of CIRC
+- GUI (graphical user interface) connection to BlueHive
+  - Easy interactive usage
+- CLI (command-line interface) connection to BlueHive
+  - More flexible, works even when GUI cannot be opened
+- Access Rstudio server/Jupyter notebook on BlueHive by using local web 
+  - My preferred way
+- Submit batch jobs using SLURM
+  - Require much larger and longer time resources
+  - Make sure your code is bug-free before submitting jobs
+
+Toy project demonstration
+- I will use a toy project to demonstrate my own workflow with BlueHive
+  - including version control, using Python for automation
+
+---
+class: inverse, center, middle
+
+# Overview of CIRC
+
+&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=796px&gt;&lt;/html&gt;
+
+---
+#What is CIRC
+
+Technology
+- BlueHive Cluster (I will cover usage for BlueHive in the workshop) 
+  - 372 nodes, 8,972CPU cores, 44 TB RAM, 420 TeraFLOPS
+  - based on x86 processors 
+- Blue Gene/Q (not covered in this workshop)
+  - 1,024 nodes, 16,384 CPU cores, 16 TB RAM, 209 TeraFLOPS
+  - based on the PowerPC chip architecture. no GUI interface, only ssh connection
+  - highly specialized for massive parallelization
+
+Currently, for Simon PhDs, you probably just need BlueHive 
+- Many software is only written for the x86 architecture. 
+  - Rstudio, STATA, LaTeX, Python, Git, SAS, MATLAB, Spark, etc. are not available on Blue Gene/Q
+
+More info [here](https://circ.rochester.edu/resources.html) (publicly available)
+---
+#Why/When do you need to use BlueHive
+BlueHive will be helpful when your projects are constrained computationally
+
+More memory
+- data is too big (&gt;1/2 of your desktop memory, but &lt;100G) to be loaded in R
+- For data &gt;100G, better to use large, multi-file datasets/commercial cloud storage
+
+More CPU
+- it took several days to run your code on your desktop, but the code can be parallelized
+  - running on BlueHive would be faster
+
+Free up computation pressure on local computer
+- You can run code on BlueHive, while using your computer to do something else
+
+---
+# More on BlueHive
+
+Please refer to the UR interally circulated file for the following topics:
+- Available software on BlueHive
+-	BlueHive Storage
+-	GUI Connection to BlueHive
+-	How to use GUI software on BlueHive
+-	How to transfer files between BlueHive and your own desktop
+-	Connect to BlueHive using ssh in Terminal
+-	Using JupyterHub to interact with BlueHive
+- Rstudio server/Remote jupyter
+
+---
+class: inverse, center, middle
+
+# Linux Basics
+
+&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=796px&gt;&lt;/html&gt;
+
+---
+# UNIX
+Unix is an Operating System, developed by AT&amp;T at Bell Labs, at 1970s
+
+Some versions of UNIX: Linux , Apple's Mac OS
+
+&lt;div align="center"&gt;
+&lt;img src="pics/Shell.png" style="width: 50%"&gt;
+&lt;/div&gt;
+Shell is also know as command-line interpreter, examples: Bash (default shell for linux)
+- named shell because it is the outermost layer around the operating system kernel
+ 
+Terminal (emulator): a text-only window, examples: cmder/cmd/powershell in Windows
+---
+# GUI vs. CLI
+
+Windows and Mac use Graphical User Interface (GUI)
+- Easy to learn
+- Rely on the visual display
+- Good for document editing, browsing web, graphic design
+- Limitation: clicking and dragging reduces reproducibility, bad automation
+
+--
+
+CLI (command-line interface) 
+- Text-based interface. Only using the keyboard is enough
+- One of the earliest ways of interacting with a computer
+
+&lt;div align="center"&gt;
+&lt;img src="pics/CLI.png" style="width: 40%"&gt;
+&lt;/div&gt;
+
+---
+# GUI vs. CLI
+&lt;div align="center"&gt;
+&lt;img src="pics/CLI2.png" style="width: 80%"&gt;
+&lt;/div&gt;
+
+---
+class: inverse, center, middle
+
+# CLI (command-line interface) connection to BlueHive: using SSH
+
+&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=796px&gt;&lt;/html&gt;
+
+---
+# connect to BlueHive: SSH (Secure Shell)
+
+Open Terminal (Windows users are recommended  to use Cmder) 
+
+Copy and paste  this code (it's @ after your NetId):
+
+
+```bash
+* ssh username@ssh.server.com 
+* #(see the internal version for this line)
+```
+Note: You will not see anything appear as you type your password!
+
+--
+
+Cmder and Sublime can save you the trouble of copying and pasting
+
+- Try: open `BluehiveInteractive.sh` in Sublime, press `CTRL+Enter`, the code will appear in Cmder
+- need to install the SendCode package in Sublime; installation process on the syllabus
+---
+# Terminal
+
+&lt;div align="center"&gt;
+&lt;img src="pics/Terminal.png" style="width: 65%"&gt;
+&lt;/div&gt;
+
+---
+# Login Node V.S. Compute Node
+
+FastX, directly connect you to a compute node
+- Otherwise (like ssh), you are in the shared login node
+
+Use code `hostname`  to tell which machine you are connected
+- If see bluehive, then you are on the login node now
+- If see compute nodes names like bhc0002, then on compute node
+
+The shared login node has limited resources
+- should not be used for calculation using a lot of memory or CPU time
+
+Switch to compute node by launching another session, try SLURM code (more on this soon):
+
+
+```bash
+*  interactive -c 4 --mem=8G
+```
+- note you have changed to a compute node now
+
+Return to the login node by `CTRL+D`, press `CTRL+D` again will let you disconnect from BlueHive
+
+---
+# Using the command line to run R
+Need to load the module R first
+
+```bash
+*  module load r/3.5.1
+*  R
+```
+
+Run `hello.R` in the workshop folder
+
+```r
+* cat("Hello, CIRC!/n")
+* 
+* n=5
+* 
+* cat("The factorial of", n, "is", factorial(n),"/n")
+```
+--
+
+There are 3 ways you know now, more ways covered later:
+- In FastX interface, open Terminal, then copy and paste the above code
+- copy and paste to cmder
+- (recommended) Open `hello.R` in Sublime, select all code, press `CTRL+ENTER`
+  - Save a lot of time on copying and pasting
+  - This is the main reason I use SSH for connection, convenient for testing local code
+  
+---
+
+# Tips about Cmder on Windows
+Did you set Cmder to be available at any folder by right click of a mouse?
+
+&lt;div align="center"&gt;
+&lt;img src="pics/CmderTip.png" style="width: 100%"&gt;
+&lt;/div&gt;
+
+---
+# Shortcuts for Terminal
+Use them in Cmder/Terminal
+
+&lt;div align="center"&gt;
+&lt;img src="pics/TerminalShortCut.png" style="width: 100%"&gt;
+&lt;/div&gt;
+
+---
+class: inverse, center, middle
+
+# Linux Command Syntax
+
+&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=796px&gt;&lt;/html&gt;
+
+
+---
+# Linux Command Syntax
+&lt;div align="center"&gt;
+&lt;img src="pics/linux1.png" style="width: 100%"&gt;
+&lt;/div&gt;
+
+---
+# Linux Command Syntax
+&lt;div align="center"&gt;
+&lt;img src="pics/linux2.png" style="width: 100%"&gt;
+&lt;/div&gt;
+
+
+---
+# Linux Command Syntax
+&lt;div align="center"&gt;
+&lt;img src="pics/linux3.png" style="width: 100%"&gt;
+&lt;/div&gt;
+
+---
+# Linux Command Syntax
+&lt;div align="center"&gt;
+&lt;img src="pics/linux4.png" style="width: 100%"&gt;
+&lt;/div&gt;
+
+---
+# Linux Command Syntax
+&lt;div align="center"&gt;
+&lt;img src="pics/linux5.png" style="width: 100%"&gt;
+&lt;/div&gt;
+
+---
+# Linux Command Syntax
+&lt;div align="center"&gt;
+&lt;img src="pics/linux6.png" style="width: 90%"&gt;
+&lt;/div&gt;
+
+---
+# Linux Command Syntax
+&lt;div align="center"&gt;
+&lt;img src="pics/linux7.png" style="width: 100%"&gt;
+&lt;/div&gt;
+
+---
+# Linux Command Syntax
+&lt;div align="center"&gt;
+&lt;img src="pics/linux8.png" style="width: 100%"&gt;
+&lt;/div&gt;
+
+---
+# Frequently Used Command
+
+- `cd`, change directories, more on this soon
+- `ls`, list documents in the current directory, more on this soon
+- `clear`(or `CTRL+L`), clear the terminal window
+- `echo`, sends inputted strings to standard output (displays on the screen)
+- `man`, manual or help documentation
+
+--
+
+&lt;div align="center"&gt;
+&lt;img src="pics/LinuxHelp.png" style="width: 50%"&gt;
+&lt;/div&gt;
+
+More on Unix command:
+- [The Unix Shell](http://swcarpentry.github.io/shell-novice/) (Software Carpentery)
+- [The Unix Workbench](https://seankross.com/the-unix-workbench/) (Sean Kross)
+---
+class: inverse, center, middle
+
+# Files in Linux
+
+&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=796px&gt;&lt;/html&gt;
+
+
+---
+# File Name
+
+Avoid spaces in file names
+
+&lt;div align="center"&gt;
+&lt;img src="pics/FileName.png" style="width: 40%"&gt;
+&lt;/div&gt;
+
+File names beginning with a period are hidden:
+- .bash_profile
+- .gitignore
+
+---
+# File Management
+I use BlueHive File Manager GUI for those actions in most time
+
+- create file
+- move file
+- rename file
+- copy file
+- delete file
+
+
+
+Python can be used for file management as well, more on this soon
+
+
+---
+# Working Directory
+At any time, you are inside a directory
+- the current directory is called *working directory*
+- use command `pwd` to see your *working directory*
+
+Using *FileManager* to open folder as *working directory*
+- In the *FileManager*, go to the desired folder
+- File (on the upper left corner) -&gt; `Open in Terminal`
+
+---
+# Command to navigate directories
+&lt;div align="center"&gt;
+&lt;img src="pics/Directory.png" style="width: 50%"&gt;
+&lt;/div&gt;
+
+Special Directory
+&lt;div align="center"&gt;
+&lt;img src="pics/SpecialDirectory.png" style="width: 50%"&gt;
+&lt;/div&gt;
+
+---
+# Changing Directories
+
+&lt;div align="center"&gt;
+&lt;img src="pics/CD.png" style="width: 70%"&gt;
+&lt;/div&gt;
+
+--
+
+&gt; *Avoid using an absolute path, always use relative path because your local computer and BlueHive have different absolute path*
+
+Examples:
+
+```bash
+cd ~
+cd ../../repos/LearningCode
+```
+
+---
+# Absolute Path
+&lt;div align="center"&gt;
+&lt;img src="pics/absolute.png" style="width: 80%"&gt;
+&lt;/div&gt;
+---
+# Relative Path
+&lt;div align="center"&gt;
+&lt;img src="pics/RelativePath.png" style="width: 80%"&gt;
+&lt;/div&gt;
+
+---
+# Relative Path
+&lt;div align="center"&gt;
+&lt;img src="pics/RelativePath2.png" style="width: 80%"&gt;
+&lt;/div&gt;
+
+---
+# Relative Path
+&lt;div align="center"&gt;
+&lt;img src="pics/RelativePath3.png" style="width: 80%"&gt;
+&lt;/div&gt;
+
+
+---
+# Listing Contents
+
+&lt;div align="center"&gt;
+&lt;img src="pics/listing.png" style="width: 100%"&gt;
+&lt;/div&gt;
+
+---
+# Listing Contents in Long Format
+
+&lt;div align="center"&gt;
+&lt;img src="pics/ListingLong.png" style="width: 100%"&gt;
+&lt;/div&gt;
+
+
+More on Unix command:
+- [The Unix Shell](http://swcarpentry.github.io/shell-novice/) (Software Carpentery)
+- [The Unix Workbench](https://seankross.com/the-unix-workbench/) (Sean Kross)
+---
+class: inverse, center, middle
+
+# Project Directory
+
+&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=796px&gt;&lt;/html&gt;
+
+---
+
+# Project Workflow
+Directories Rules (by Matthew Gentzkow &amp; Jesse M. Shapiro, Source: https://web.stanford.edu/~gentzkow/research/CodeAndData.pdf)
+- Separate directories by function. 
+- Separate files into inputs and outputs. 
+- Make directories portable.
+
+&lt;div align="center"&gt;
+&lt;img src="pics/ProjectWorkFlow.png" style="width: 90%"&gt;
+&lt;/div&gt;
+---
+# File organization
+&lt;div align="center"&gt;
+&lt;img src="pics/ProjectFile.png" style="width: 60%"&gt;
+&lt;/div&gt;
+
+Just for illustration. Decide the detail by your own preference
+---
+# Use Python for file management
+
+Change the directory in the Terminal to the one you store the workshop file 
+
+You may use python to create folders of your project initially. Try this on BlueHive
+
+
+```bash
+*  module load python3
+*  python3 CreateProjectFolders.py
+```
+
+&lt;div align="center"&gt;
+&lt;img src="pics/ProjectDirectory.png" style="width: 50%"&gt;
+&lt;/div&gt;
+
+---
+# Running Python in the local desktop
+`CreateProjectFolders.py` can also run on your laptop (if you have installed Anaconda with python3)
+
+Run this in the terminal:
+
+```bash
+*  python CreateProjectFolders.py
+```
+--
+In Windows, if having errors: 'python' is not recognized as an internal or external command
+- need to add Python to the PATH first
+- Check Python installed path, Mine is `C:\ProgramData\Anaconda3\`
+- Click Windows logo at the bottom left, search `Environment`
+  - Click on `Environment variables`
+- Under `System variables`, select Path and click on edit.
+- Click `New`, and add the folder address for R to there (C:\Program Files\R\R-3.5.2\bin\x64)
+- Similarly  for R, my path is `C:\Program Files\R\R-3.5.2\bin\x64`
+
+---
+class: inverse, center, middle
+
+# Batch Mode
+
+&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=796px&gt;&lt;/html&gt;
+
+---
+# Interactive vs Non-Interactive Sessions
+
+Interactive mode: you type commands, and you get the outputs in return
+- Example: Rstudio, R opened from the command line
+- All previous examples using R/Python are in interactive mode
+- The initial stage of your project to explore data, to write scripts
+
+--
+
+Non-interactive mode, a.k.a. batch mode
+- execution of one or more programs without manual intervention while running
+- All data and commands are passed through scripts
+- Later stage of your project. Sure about no mistake/error when running those scripts
+- For reproducing  your result. Reduce repeated manual work
+- Name `batch` because the input data are collected into batches of files
+
+--
+
+When to use batch mode:
+- Automating analysis. Using 1 Python code to run the whole project
+  - Very useful when you change sample selection in the late stage of your project
+
+---
+# Run R in non-interactive mode
+
+Summary:
+
+- Using `R CMD BATCH`, old command
+
+```r
+* R CMD BATCH hello.R
+```
+- Using `Rscript`, my preferred way
+
+```r
+* Rscript hello.R
+```
+- Running a shell script (better to use Rscript inside the bash script instead)
+
+```r
+* ./hello.R
+```
+
+---
+# R CMD
+&lt;div align="center"&gt;
+&lt;img src="pics/Rcmd.png" style="width: 50%"&gt;
+&lt;/div&gt;
+
+The command we are interested is the BATCH tool (run R in batch mode)
+
+&lt;div align="center"&gt;
+&lt;img src="pics/rcmdbatch.png" style="width: 60%"&gt;
+&lt;/div&gt;
+
+Demonstration (hello.Rout is generated, open it)
+
+```r
+* R CMD BATCH hello.R
+```
+
+---
+# R CMD BATCH with arguments
+
+It would be nice if we can calculate the factorial of any integer
+
+&lt;div align="center"&gt;
+&lt;img src="pics/rcmdbatchargu.png" style="width: 60%"&gt;
+&lt;/div&gt;
+
+Example:
+
+```r
+* R CMD BATCH "--args 7 8" FactorialWithArguments.R
+```
+This is like function outside the Rscript
+
+Would be useful when combined with a loop for parallelization
+
+---
+# Rscript: Executing simple expressions
+
+&lt;div align="center"&gt;
+&lt;img src="pics/Rscript.png" style="width: 60%"&gt;
+&lt;/div&gt;
+
+Executing simple expressions. Examples are also in the `Rbatch.R`
+
+```r
+Rscript -e "2 + 2"
+Rscript -e "factorial(9)"
+Rscript -e "2 + 2" -e "factorial(9)"
+Rscript -e "2 + 2; factorial(9)"
+Rscript -e "paste('today is', substr(date(), 1, 10), substr(date(), 21, 24))"
+Rscript -e "paste('the time is', substr(date(), 12, 19))"
+```
+
+
+```r
+* Rscript -e 'source("hello.R")' # more concise command for this in the next page
+```
+- `source` is a function to read R code from a file
+---
+# Rscript without Arugments
+
+Basic usage
+
+
+```r
+* Rscript hello.R
+```
+--
+Generate an output file, and error file
+
+```r
+* Rscript hello.R &gt; outputFile.Rout 2&gt; errorFile.Rout
+```
+--
+My preferred way: Rscript with R Markdown (Run on BlueHive)
+
+```r
+* Rscript Rmarkdown.R
+```
+
+- **Using R Markdown with .R script directly** (Run on BlueHive)
+- note the final in the Rmarkdown.R file is `render('hello.R')`
+- Useful because it can track the result of your code
+- You can also run locally
+
+---
+# Rscript with Arugments
+
+```r
+* Rscript script_file.R arg1 arg2
+```
+
+Example:
+
+```r
+* Rscript FactorialWithArguments.R 7 8
+```
+
+---
+# Other software in batch mode
+Python
+
+```r
+* module load python3
+* python3 CreateProjectFolders.py
+```
+Stata
+
+```r
+* module load stata/15
+* stata &lt; StataCode.do &gt; StataCode.log
+# Source: Stata Manual, https://www.stata.com/manuals13/u16.pdf
+```
+Latex
+
+```r
+* module load texlive/2016
+* cd ./ToyProject/Paper
+* pdflatex texintro.tex
+* pdflatex texintro.tex
+# Source: Writing Finance Papers using LaTeX, by Richard Stanton
+# need to second run of pdflatex will generate the table of content
+```
+
+---
+class: inverse, center, middle
+
+# Bash Script
+
+&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=796px&gt;&lt;/html&gt;
+
+---
+# Create a Bash Script
+
+Reminder: Bash is one type of shell, default shell for Linux
+
+example bash script, `hello.sh`
+
+```bash
+#!/bin/bash
+echo "Hello CIRC!"
+```
+
+The first line of a shell script file is a special case
+- always put the path to the interpreter here
+- `#!` is often referred to as the shebang
+
+```bash
+* #!/bin/bash
+* #!/usr/bin/env bash
+```
+
+In other places, `#` is used as a comment line
+
+Try to run this bash script
+
+```bash
+* bash hello.sh
+```
+---
+#Bash Script with Argument
+
+Example with fixed number of argument:
+
+```bash
+* bash BashWithArgument.sh YOURNAME
+```
+
+```bash
+#!/usr/bin/bash
+# Use $1 to get the first argument:
+echo "Hello $1!"
+```
+
+Example with a flexible number of argument:
+
+```bash
+* bash BashFlexibleArgument.sh Shengyu A B C
+```
+
+
+```bash
+for name in "$@"
+do
+echo "Hello $name!"
+done
+```
+
+---
+# Make a Bash script executable
+
+Still, run the code on BlueHive. Windows don't have chmod command
+
+Change the permissions on the file to make it executable:
+
+```bash
+* chmod u+x hello.sh
+```
+If having error bad interpreter: No such file or directory, try this code first
+
+```bash
+* sed -i -e 's/\r$//' hello.sh
+```
+- Unix uses different line endings than Windows
+- This code convert code I created on Windows with the UNIX line endings
+
+Now the code is executable, trys
+
+```bash
+* ./hello.sh
+```
+
+---
+# Make a R script executable
+
+You may write R script as a shell script, rather than using bash
+- not recommended, because you can call other languages easily in bash
+- Better to use Rscript inside the bash script instead
+
+Example, `hello.R` file
+
+```bash
+#!/usr/bin/env Rscript
+cat("Hello, CIRC!/n")
+
+n=5
+
+cat("The factorial of", n, "is", factorial(n),"/n")
+```
+
+Run it:
+
+```bash
+chmod u+x hello.R
+sed -i -e 's/\r$//' hello.R
+./hello.R
+```
+
+---
+class: inverse, center, middle
+
+# SLURM job scheduler
+
+&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=796px&gt;&lt;/html&gt;
+
+---
+# batch jobs
+You already know bash script, need a resource manager schedules and allocates resources
+- CPU time, memory, etc.
+
+On BlueHive, batch jobs are submitted to SLURM, a job scheduler
+- SLURM stands for Simple Linux Utility for Resource Management
+- Open source job scheduling system for Linux clusters
+
+&lt;div align="center"&gt;
+&lt;img src="pics/slurm.png" style="width: 30%"&gt;
+&lt;/div&gt;
+
+---
+# Create Batch Job
+Example: SLURMExample1.sh
+
+```bash
+#!/bin/bash
+#SBATCH --partition=debug  --time=00:01:00  --output=SLURMExample.log
+# a compute node in the debug partition
+# For one minute
+# print out the output to SLURMExample.log
+
+#SBATCH --job-name=CIRC_Simon # you can specify more options
+
+date
+hostname
+module load r/3.5.1
+Rscript Rmarkdown.R
+```
+
+Just add `#SBATCH` related command to bash script, between shebang and script commands
+- `#SBATCH` is parsed by SLURM, ignored by Bash
+- you can add comments after and between `#SBATCH` commands
+- must put before the actual commands
+
+More on `SBATCH` options soon
+---
+# Submit a job
+
+Use the sbatch command, Example:
+
+```bash
+* sbatch SLURMExample1.sh
+```
+You will see a message like this
+
+&lt;div align="center"&gt;
+&lt;img src="pics/sbatch1.png" style="width: 80%"&gt;
+&lt;/div&gt;
+
+This job is assigned a job ID, 7156294
+
+This job will be done nearly instantly because it only requires very small resource
+
+Refresh your folder in WinSCP or Linux GUI
+- you will see SLURMExample.log just created
+
+---
+# Priority
+
+&lt;div align="center"&gt;
+&lt;img src="pics/sbatch.png" style="width: 80%"&gt;
+&lt;/div&gt;
+
+Your jobs' priority depends on (details are complicated, simple version, generally true):
+- Job age: how long the job has been waiting in the queue ;
+- User fairshare: a measure of past usage of the cluster by the user ;
+- Job size: the number of CPUs a job requests ;
+- Partition: the partition to which a job is submitted
+
+They have different weights. Know more about the details on weight on BlueHive:
+
+```bash
+sprio -w
+scontrol show config | grep ^Priority
+```
+---
+# Check Submitted Job Status
+
+This code will show the status of your submitted jobs
+
+```bash
+* squeue -u YOURNETID
+```
+&lt;div align="center"&gt;
+&lt;img src="pics/JobStatus.png" style="width: 80%"&gt;
+&lt;/div&gt;
+
+---
+# Retrieve Finished Job Info
+
+```bash
+* job-info
+```
+&lt;div align="center"&gt;
+&lt;img src="pics/jobinfo.png" style="width: 100%"&gt;
+&lt;/div&gt;
+
+More information about finished jobs
+
+```bash
+sacct -j JOBID --format=JobID,Jobname,state,time,elapsed,reqmem,MaxRss,averss,nnodes,ncpus
+```
+- time: the timelimit for the job
+- elapsed: The jobs elapsed time. fomrat: [DD-[HH:]]MM:SS
+- reqmem: requested memory
+- maxrss(averss): Maximum(Average) portion of memory occupied of all tasks in job.
+- More on sacct can be found at: https://slurm.schedmd.com/sacct.html
+
+&lt;div align="center"&gt;
+&lt;img src="pics/sacct.png" style="width: 100%"&gt;
+&lt;/div&gt;
+
+---
+# Right amount of resources
+
+&lt;div align="center"&gt;
+&lt;img src="pics/Optimize.png" style="width: 100%"&gt;
+&lt;/div&gt;
+- Choosing optimized resources can let your job run earlier while don't affect job quality
+- source: https://www.accre.vanderbilt.edu/wp-content/uploads/2016/08/intro_to_slurm.pdf
+---
+# Other SLURM commands
+
+Cancel a job
+
+```bash
+* scancel JobId
+```
+Check available computation resources on SimonX
+- if there are jobs pending, your job will probably need to wait
+
+
+```bash
+* squeue -p simonx
+```
+Show information about partitions
+
+```bash
+* sinfo -s
+```
+Show details about a job
+
+```bash
+* scontrol show job JOBID
+```
+
+---
+# More Sbatch Options
+&lt;div align="center"&gt;
+&lt;img src="pics/sbatchoption1.png" style="width: 80%"&gt;
+&lt;/div&gt;
+
+
+---
+# Email Notifications
+
+&lt;div align="center"&gt;
+&lt;img src="pics/sbatchoption2.png" style="width: 80%"&gt;
+&lt;/div&gt;
+- I use this to get notified when my job is done
+- Will use this option in the toy project to be demonstrated soon
+
+---
+# More Sbatch Options
+
+Multiple CPUs
+- `--ntasks` (or `-n`), for message-passing (MPI) parallelization and may reserve CPUs on different compute nodes
+- `--cpus-per-task` (or `-c`), for multithreading and guarantees that CPUs will be on the same node and can access the same shared memory. 
+
+Requesting GPU (`-p` option specifies the partition you want for your job)
+- using the `--gres=gpu` option (optionally, including a number of GPUs, default is 1)
+
+```bash
+* #SBATCH -p gpu  --gres=gpu:2
+```
+Specifying the CPU/GPU model
+
+```bash
+* #SBATCH -p standard -C MODEL1|MODEL2
+```
+- To request a CPU of model MODEL1 or MODEL2, [Full CPU/GPU list on BlueHive](https://info.circ.rochester.edu/#BlueHive/Compute_Nodes/#summary) 
+
+More options can be found here https://slurm.schedmd.com/sbatch.html
+
+---
+# SLURM Summary
+
+&lt;div align="center"&gt;
+&lt;img src="pics/SlurmSummary.png" style="width: 100%"&gt;
+&lt;/div&gt;
+
+---
+# Job arrays
+Example, `JobArray1.sh`
+
+```bash
+#!/bin/bash
+#SBATCH -o out.%a.txt -t 00:05:00
+#SBATCH -a 1-10
+echo This is job $SLURM_ARRAY_TASK_ID
+```
+Try `sbatch JobArray1.sh`
+
+The outcome of this script:
+- submitted 10 jobs
+- create 10 output files, `out.1.txt` through `out.10.txt`
+- `out.1.txt` will print `This is job 1`
+
+Job array index will replace
+- `%a` in the output filename
+- the variable `$SLURM_ARRAY_TASK_ID` in the script
+
+---
+# Use Loop inside the job
+Many partitions set 2000 as the limit for the number of jobs running or pending
+
+What if you want to run 5000 jobs?
+- can use a double loop
+- 50 outer loop, 100 inner loop
+
+`JobArraryLoop.sh`
+
+```bash
+#!/bin/bash
+#SBATCH -o log.txt -t 00:05:00
+#SBATCH -a 1-50
+for i in {1..100}; do
+  ip=$SLURM_ARRAY_TASK_ID.$i
+  myprogram in.$ip &gt; out.$ip
+done
+```
+
+---
+# Running a pipeline of jobs
+
+You can specify a dependency of one job on another:
+
+```bash
+sbatch job1.sh
+sbatch --dependency=afterok:123456 job2.sh
+```
+
+- replace `123456` with the job ID for the first job
+- the `job2.sh` will not run until `job1.sh` has completed with no errors
+
+The script sbatch-pipeline makes it easier to submit a pipeline of several jobs
+- the two jobs above may be run by creating a file called `InFile` with the lines
+
+```bash
+job1.sh
+job2.sh
+```
+and then typing
+
+```bash
+sbatch-pipeline InFile
+```
+For more info, type `sbatch-pipeline --help`
+
+---
+# Using salloc and srun
+
+`srun` command creates an allocation and runs a single command immediately.
+- useful for simply testing if you can run a job on a particular node or partition
+- example: `srun -p debug hostname`, will run hostname on a node in the debug partition
+
+you can use salloc to create an allocation, and then spawn a shell locally to use it with srun
+
+```bash
+salloc -p debug -t 1:00:00   # (starts a new shell on the login node)
+echo $SLURM_NODELIST         # (slurm sets several environment variables)
+srun --pty $SHELL -1         # (connects you to a shell on the compute node)
+exit                         # (exits the shell on the compute node)
+exit                         # (exits the allocation)
+```
+One advantage to using salloc: run multiple srun commands within the same job allocation.
+
+
+```bash
+salloc -p standard -n 1 -t 2:00:00   # (allocates the resources)
+srun hostname                        # (runs the command hostname on the compute node(s))
+module load r                        # (loads the r module)
+srun --pty R                         # (runs R and connects standard in and out to the local terminal
+exit                                 # (exits the allocation)
+```
+
+---
+class: inverse, center, middle
+
+# Summary
+
+&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=796px&gt;&lt;/html&gt;
+
+---
+# Workshop Summary
+
+How to use the High Performance Computing (HPC) of CIRC
+- GUI (graphical user interface) connection to BlueHive
+- CLI (command-line interface) connection to BlueHive
+- Access Rstudio server/Jupyter notebook on BlueHive by using local web 
+- Submit batch jobs using SLURM
+
+Web scraping may not work well on BlueHive
+- IP rotation service is intentionally disabled, so very easy to get blocked by the website
+
+
+Toy project demonstration
+- I will use a toy project to demonstrate my own workflow with BlueHive
+  - including version control, using Python for automation
+
+---
+class: inverse, center, middle
+
+# Questions?
+
+&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=796px&gt;&lt;/html&gt;
+
+
+---
+class: inverse, center, middle
+
+# Version Control Using Git
+
+&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=796px&gt;&lt;/html&gt;
+---
+
+# Why version control?
+
+Nightmares you want to avoid:
+- You kept one figure you made five months ago. 
+- To replicate this figure, you find that it's based on a temporary file which has already been deleted.
+- When you finally figure out how to create the desired temporary file, and run your code to generate the figure, you find the figure is different from the earlier one. 
+
+Using Version Control software like Git, Bitbucket/Github can help you to avoid this
+
+---
+# Why version control?
+
+&lt;div align="center"&gt;
+&lt;img src="pics/VersionControl1.png" style="width: 50%"&gt;
+&lt;/div&gt;
+
+---
+# Examples of (pseudo) Version Control
+File naming, things will get messy
+- DataCleaning_V1.R, DataCleaning_V2.R
+- DataCleaning_Jan_01_2019.R, DataCleaning_Jan_02_2019.R
+
+Can you remember the changes between them after you create 10 files?
+
+Dropbox/Google drive to track changes
+- They track each file separately, not the project as a whole, 
+
+These are not good for version control
+
+---
+# Git 
+
+Git is a free open source distributed version control system
+- keep tracks of file changes over time
+- Easy to revert to previous versions
+- Easier collaboration when you have multiple copies of work
+  - Each co-author has 1 copy
+  - For solo author, 1 local repository and 1 repository on BlueHive. 
+
+
+Each user can work on their own version of the repository locally
+
+--
+
+Why Bitbucket/Github? 
+- They provide a nice platform to store repository remotely and GUI for Git
+- easier to start with GUI than using command line
+
+I use Bitbucket and SourceTree primarily because the repository can be held private for free
+- starting from Jan 7, 2019, GitHub Free users now get unlimited private repositories
+- GitHub and GitHub desktop are alternatives, I also store this workshop folder in GitHub
+- demonstration in the toy project soon
+---
+# Only store changes between versions
+
+&lt;div align="center"&gt;
+&lt;img src="pics/git1.png" style="width: 60%"&gt;
+&lt;/div&gt;
+&lt;div align="center"&gt;
+&lt;img src="pics/git2.png" style="width: 60%"&gt;
+&lt;/div&gt;
+Source: [Gaston Sanchez blog](https://docs.google.com/presentation/d/18M9LuX1eVrjknXXYYPcxIYBHiLNJnClai_Z0WE2So2k/pub?start=false&amp;loop=false&amp;delayms=3000&amp;slide=id.p) 
+
+---
+# Commits (Taking photo)
+You take a snapshot for your project at different times
+
+Each snapshot is known as a `commit` in Git with a unique ID (hash commit)
+
+&lt;div align="center"&gt;
+&lt;img src="pics/ProjectSnapshots.png" style="width: 70%"&gt;
+&lt;/div&gt;
+
+---
+# Core commands of Git
+&lt;div align="center"&gt;
+&lt;img src="pics/gitCore.png" style="width: 90%"&gt;
+&lt;/div&gt;
+Source: [Kieran Healy's The Plain Person's Guide to Plain Text Social Science](http://plain-text.co/keep-a-record.html#keep-a-record)
+
+Only use version control on your code and documents
+- Do not control your temporary data file/raw data
+- The total size of files under version control better be &lt;=10MB
+
+
+---
+# More git commands
+Git has more functions like branch, revert
+
+You may find details on those resources:
+
+- [Bitbucket Cloud documentation](https://confluence.atlassian.com/bitbucket/bitbucket-cloud-documentation-221448814.html)
+- [Atlantis git cheat sheet](https://www.atlassian.com/dam/jcr:8132028b-024f-4b6b-953e-e68fcce0c5fa/atlassian-git-cheatsheet.pdf)
+- [GitHub Git Cheat Sheet](https://education.github.com/git-cheat-sheet-education.pdf)
+
+---
+class: inverse, center, middle
+
+# Toy project demonstration
+
+&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=796px&gt;&lt;/html&gt;
+
+---
+# My habits
+
+I use python to execute all the code of my research project from the beginning to the end.
+
+- clean data using R
+- run a regression using Stata
+- writing a paper using Latex
+- and making slides using Beamer/Rmarkdown
+
+--
+
+I typically don't edit code directly on BLUEHIVE
+- I prefer creating code using Sublime locally, then upload to BlueHive using WinSCP/git
+- To directly edit code, you may try 
+  - GUI: use the Pluma Text Editor on BlueHive
+  - CLI: Using Vim to view and edit code in the command line
+
+--
+
+My research log is made with Rmarkdown with `rmdformats` package
+- previous I use LaTex for the research log
+- but using HTML format for research log is more convenient, I think
+  - [sample doc using material theme](https://cdn.rawgit.com/juba/rmdformats/master/resources/examples/material/material.html#code-and-verbatim
+), [sample doc using readthedown theme](https://cdn.rawgit.com/juba/rmdformats/master/resources/examples/readthedown/readthedown.html#content)
+
+
+---
+# Workflow
+
+Workflow Time Line
+
+1. Have good research idea, get data, literature review
+
+2. Using git to launch project
+
+2. upload big data set to BlueHive
+
+2. write code locally, and test code interactively using Rstudio server
+
+2. submit a batch job to run the whole project
+
+2. download the document of the finished job, sync files
+
+
+--
+
+Let me demonstrate my current workflow by a toy project using Diamond data
+- just for your reference, decide your own workflow by yourself
+
+---
+# Project Folder structure
+
+&lt;div align="center"&gt;
+&lt;img src="pics/ProjectFolder.png" style="width: 70%"&gt;
+&lt;/div&gt;
+
+---
+# Project Files
+
+&lt;div align="center"&gt;
+&lt;img src="pics/MoreFiles1.png" style="width: 60%"&gt;
+&lt;/div&gt;
+&lt;div align="center"&gt;
+&lt;img src="pics/MoreFiles2.png" style="width: 60%"&gt;
+&lt;/div&gt;
+- More files in the paper and Slides folder, not shown here for clarity
+
+---
+# Using git to launch project
+
+&gt; **Using git to launch project**
+
+Go to BitBucket website and log in, https://bitbucket.org/
+
+Create a new repository `DiamondProject`
+
+Open SourceTree on your laptop, and clone the repository `DiamondProject`
+- SourceTree provides a good GUI for git, but all commands can also be done in CLI
+
+Open the file `ToyProject/BluehiveJob.sh`
+- **change the email to your own email**
+- **change the folder to your desired repository location**
+
+Copy the all the files in `ToyProject` to `DiamondProject`
+
+Stage files, commit changes and push to BitBucket
+- notice that you online `DiamondProject` repository contain those files you created
+
+---
+# Transfter project to BlueHive
+Create a project folder of your desired path, mine is `/scratch/MYNETID/repos/`
+
+```bash
+* cd ~
+* cd ../../scratch/YOURNETID/repos/
+```
+
+Clone the repository to BlueHive
+
+
+```bash
+* module load git/2.14.1
+* git clone git@bitbucket.org:shengyu-zhu/DiamondProject.git
+```
+- Add ssh key on BlueHive so it won't ask for password for your BitBucket account again
+https://confluence.atlassian.com/bitbucket/set-up-an-ssh-key-728138079.html
+
+&gt; **upload big data set to BlueHive**
+
+---
+# Test code
+You may need to launch a more powerful session to test your code first
+- `interactive -c 4 --mem=8G` in Cmder
+- for the demonstration, skip this part
+
+
+```bash
+cd diamondproject/DataClean/code/
+module load python3
+module load r/3.5.1
+module load texlive/2016
+module load stata/15
+python3 rundirectory.py
+```
+&gt; **write code locally, and test code interactively using Rstudio server**
+
+- I keep both jpeg and pdf figures because jpeg (pdf) is more compatible for Rmarkdown (latex)
+
+---
+# Submit a batch job
+
+
+&gt; **submit a batch job to run code on the whole data set**
+
+
+```bash
+cd ~
+cd ../../scratch/YOURNETID/repos/diamondproject/
+sbatch BluehiveJob.sh
+```
+
+You will receive a notification in your email when your job is done on BlueHive
+
+Notice there are 2 new files in the repository folder:
+- BluehiveJob.err, contain all error messages (if any) in your job
+- BluehiveJob.out, contain the all code output
+
+---
+# download files
+
+&gt; **download the document of the finished job, sync files**
+
+There is no softwares like Dropbox on bluehive
+
+- For minor revisions, just use WinSCP
+
+- For major changes, version control, push the repository on BlueHive
+
+
+```bash
+git add --all
+git branch
+git status
+git commit -m "BlueHive finished"
+git push
+```
+
+If your local code and remote code on BlueHive are not the same, *sync first* (details next page)
+
+More on Git:
+- https://www.atlassian.com/git/tutorials
+
+---
+# Reset remote code before version control
+
+To resolve the contradiction, I typicall pull repository before submitting job
+
+- I only revise local code first, so local code is always most up to date
+- Version control on local code first, push local code changes
+- Then on BlueHive, just reset repository, and pull the repository
+
+```bash
+git reset --hard
+git clean -n
+git clean -f
+git status
+git pull
+```
+This makes sure your romote code on BlueHive and local code are exactly the same
+
+Run a job
+
+After your job is done, Push repository on BlueHive would be fine
+
+---
+# change file and re-run project
+
+Let's the change the original data only on diamonds whose price &lt;= 10000
+
+- change code locally
+
+- using WinSCP to upload code, Run the job again
+  - For major revisions, push repos locally, reset repos on BlueHive
+  - then run job, push repos
+  
+- Sycn file using WinSCP/Pull repository on local laptop
+
+- Check that your local repository is up to date
+
+---
+# Source of the toy project
+
+Latex paper template is from
+- http://faculty.haas.berkeley.edu/stanton/texintro/
+
+Beamer slides is from
+- https://www.overleaf.com/latex/templates/metropolis-beamer-theme/qzyvdhrntfmr
+- You need to install Fira Sans font and Fira Mono font, 
+  - https://www.fontsquirrel.com/fonts/fira-sans
+  - https://www.fontsquirrel.com/fonts/fira-mono
+- details on install font on Linux, https://itsfoss.com/install-fonts-ubuntu-1404-1410/
+- use `xelatex` instead of `pdflatex` to avoid font error
+
+Research log is made using with `rmdformats` package
+- https://github.com/juba/rmdformats
+
+
+
+---
+# Overleaf
+
+I switch to Overleaf for compiling latex files
+
+- so no worries on latex package, font, etc.
+
+- I use R code to change and upload results to overleaf folders in dropbox
+  - so the numbers in my reserach log, slides, paper will always be consistent
+
+Tips + Tricks with Beamer: very useful by Paul Goldsmith-Pinkham at Yale SOM
+
+- https://paulgp.github.io/beamer_tips.html
+
+Simon PhDs can use research budget for overleaf subscription/dropbox subscription
+
+
+---
+class: inverse, center, middle
+
+# Rmarkdown with xaringan
+
+&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=796px&gt;&lt;/html&gt;
+
+---
+# My slides are created by Rmarkdown
+I used the Rmarkdown with xaringan package, source code is in the shared workshop folder
+
+Advantages:
+- You can add code block and highlight code easily
+- Can insert LaTeX math expressions
+- Markdown is more concise than LaTex Beamer
+- The RStudio addin "Infinite Moon Reader" automatically refreshes slides on changes
+
+More information about R markdown package:
+- Website: https://rmarkdown.rstudio.com
+- Cheatsheat: https://github.com/rstudio/cheatsheets/raw/master/rmarkdown-2.0.pdf
+- Book: R Markdown: The Definitive Guide[https://bookdown.org/yihui/rmarkdown] (Yihui Xie, JJ Allaire, and Garrett Grolemund)
+
+More information about xaringan package:
+- https://github.com/yihui/xaringan
+- https://slides.yihui.name/xaringan/#1
+
+---
+class: inverse, center, middle
+
+# Alternatives
+
+&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=796px&gt;&lt;/html&gt;
+
+---
+# Alternatives to CIRC
+
+Alternatives are commercial cloud computing:
+
+- Amazon AWS EC2
+- Google Cloud Computing
+
+Need pay to use these, but using BlueHive is free for Simon PhDs
+- There is a 12-month ($300 credit) free trial for Google Cloud Platform
+
+You can set up a RStudio Server on Google Compute Engine
+- http://grantmcdermott.com/2017/05/30/rstudio-server-compute-engine/, tutorial by Grant McDermott
+
+
+---
+class: inverse, center, middle
+
+# Bigger Data (&gt;200G)
+
+&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=796px&gt;&lt;/html&gt;
+
+---
+# Bigger data (&gt;200G)
+
+What if you have &gt;200G, 1TB data?
+- nearly impossible to load into memory at one time
+- need usage of database
+
+May start by analyzing a random subsample
+
+See the example of "Analyzing 1.1 Billion NYC Taxi and Uber Trips, with a Vengeance"
+- 291 GB of raw data
+- https://toddwschneider.com/posts/analyzing-1-1-billion-nyc-taxi-and-uber-trips-with-a-vengeance/
+- https://github.com/toddwschneider/nyc-taxi-data
+
+
+---
+class: inverse, center, middle
+
+# Acknowledgement/Reference
+
+&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=796px&gt;&lt;/html&gt;
+
+---
+# Acknowledgement
+Many things I present today is learned from other Marketing students and faculty
+
+The SLURM related pics are extracted from slides of Vanderbilt ACCRE
+- https://www.accre.vanderbilt.edu/wp-content/uploads/2016/08/intro_to_slurm.pdf
+
+Many graphs on UNIX, running R in batch mode is originally created by Gaston Sanchez
+- http://www.gastonsanchez.com/, open-source material
+
+Code and Data for the Social Sciences: A Practitioner's Guide
+- By Prof. Jesse Shapiro. It contains several advices on writing code for social scientists. 
+- http://www.brown.edu/Research/Shapiro/pdfs/CodeAndData.pdf 
+
+Data science for economists, graduate seminar by Grant McDermott at the U. of Oregon
+- https://github.com/uo-ec607/lectures
+
+---
+# Userful Materials about R
+R for Data Science, https://r4ds.had.co.nz/index.html 
+  - 1 author for this book is Hadley Wickham, the current Chief Scientist at Rstudio
+  - The Rmarkdown example is extracted from this book
+  - Exercise Solution: https://jrnold.github.io/r4ds-exercise-solutions/index.html 
+  
+Advance R, https://adv-r.hadley.nz/ 
+  - Also by Hadley Wickham, advanced usage of R
+  - Exercise Solutions: https://advanced-r-solutions.rbind.io/index.html  
+  
+Data table package
+  - Concise, faster, memory efficient package for data cleaning
+  - https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

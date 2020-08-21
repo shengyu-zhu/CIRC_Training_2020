@@ -1,0 +1,6 @@
+Rscript -e "2 + 2"
+Rscript -e "factorial(9)"
+Rscript -e "2 + 2" -e "factorial(9)"
+Rscript -e "2 + 2; factorial(9)"
+Rscript -e "paste('today is', substr(date(), 1, 10), substr(date(), 21, 24))"
+Rscript -e "paste('the time is', substr(date(), 12, 19))"

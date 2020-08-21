@@ -1,0 +1,38 @@
+---
+title: "MPG Dataset Demo"
+author: "Shengyu Zhu"
+output: html_document
+---
+
+### load library and data
+```{r}
+
+library(ggplot2)
+SystemsInfo <- Sys.info()['sysname']
+
+FocalData = diamonds
+#FocalData = diamonds[price <= 10000,]
+
+comma <- function(x) format(x, digits = 2, big.mark = ",", scientific=FALSE)
+```
+
+### save number
+```{r}
+DemoNum <- nrow(FocalData)
+comma(DemoNum)
+write.table(comma(DemoNum), "../output/DemoNum.tex",row.names = FALSE, col.names = FALSE, quote = FALSE,eol = "")
+```
+
+### save figure
+```{r}
+FigureToSave <- ggplot(data = FocalData) +
+  geom_bar(mapping = aes(x = cut))
+FigureToSave
+
+if(unname(SystemsInfo)=="Linux")	ggsave("../output/figure/DemoFigure.jpeg", dpi = 500)
+if(unname(SystemsInfo)=="Linux")    ggsave("../output/figure/DemoFigure.pdf", width=8, height=5)
+if(unname(SystemsInfo)=="Windows")	ggsave("../output/figure/DemoFigure.jpeg", dpi = 500)
+if(unname(SystemsInfo)=="Windows")  ggsave("../output/figure/DemoFigure.pdf", width=8, height=5)
+#if(unname(SystemsInfo)=="Windows")	ggsave("../output/figure/DemoFigure_Sub.jpeg", dpi = 500)
+#if(unname(SystemsInfo)=="Windows")  ggsave("../output/figure/DemoFigure_Sub.pdf", width=8, height=5)
+```

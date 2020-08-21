@@ -1,0 +1,63 @@
+---
+title: "Research Log"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::readthedown:
+    code_folding: hide
+    self_contained: true
+    thumbnails: false
+    lightbox: false
+---
+<!-- material --> 
+<!-- readthedown --> 
+<!-- readthedown(fig_width = 8, fig_height = 5, fig_caption = TRUE,
+  highlight = "kate", lightbox = FALSE, thumbnails = FALSE,
+  gallery = FALSE, pandoc_args = NULL, toc_depth = 2,
+  use_bookdown = FALSE, ...) --> 
+<!-- html_clean --> 
+
+```{r knitr_init, echo=FALSE, cache=FALSE}
+library(knitr)
+library(rmdformats)
+
+## Global options
+options(max.print="75")
+opts_chunk$set(echo=FALSE,
+	             cache=TRUE,
+               prompt=FALSE,
+               tidy=TRUE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE)
+opts_knit$set(width=75)
+```
+
+# To do list
+Research Log is different than your paper. It aims to record what you have done and plan to do in detail.
+
+List the thing need to do
+- Explore size and price
+- Explore ...
+
+Just for demonstration in the CIRC training for Simon PhD students
+
+# Illustration
+
+Num of observations in the data
+```{r comment=''}
+cat(readLines('../output/DemoNum.tex'), sep = '\n')
+```
+
+The histogram of cut
+
+![Subsample](../output/figure/DemoFigure.jpeg){width=100%}
+
+Note: just for demonstration
+
+
+# More label
+# More label
+# More label
+# More label
+# More label
+
